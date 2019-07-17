@@ -1,7 +1,7 @@
 
 
 
-################################# BUSINESS LOGIC   (V1.0) #####################################
+################################# BUSINESS LOGIC   (V1.1) #####################################
 
 
 #Loading Libraries
@@ -88,7 +88,6 @@ fitPredictLm = function(splittedData, p = 1, afficherTest = FALSE){
 #Linear Model Regularization & Selection (Ridge/Lasso)
 regPredict = function(splittedData, p,ridge = TRUE, lambdaVal=0, afficherTest = FALSE){
   
-  
   trainData = splittedData$train[order(splittedData$train$x),]
   testData =  splittedData$test[order(splittedData$test$x),]
   sepPoints = splittedData$sepPoints
@@ -116,19 +115,15 @@ regPredict = function(splittedData, p,ridge = TRUE, lambdaVal=0, afficherTest = 
   else
     alpha = 1
   
-  fitridge = glmnet(polyTrain, trainData$y, lambda = lambd, alpha = alpha, standardize = F)
+  fitridge = glmnet(polyTrain, trainData$y, lambda = lambd, alpha = alpha, standardize = T)
   
-  #if(lambdaVal!=0){
-  preds = predict.glmnet(object = fitridge, newx = polyWhole, s=lambdaVal, type = "response")
-  #}
-  #else 
-  #  preds = predict(lm(y~poly(x,p), data = trainData), newdata = data)
-  
-  predsTr = predict.glmnet(object = fitridge, newx = polyTrain, s=lambdaVal, type = "response")
+  preds = predict.glmnet(object = fitridge, newx = polyWhole, s=exp(lambdaVal), type = "response")
+
+  predsTr = predict.glmnet(object = fitridge, newx = polyTrain, s=exp(lambdaVal), type = "response")
   trRMSE =round( RMSE(pred = predsTr, obs = trainData$y), digits = 2)
   
   if (afficherTest){
-    predsTs = predict.glmnet(object = fitridge, newx = polyTest, s=lambdaVal, type = "response")
+    predsTs = predict.glmnet(object = fitridge, newx = polyTest, s=exp(lambdaVal), type = "response")
     tsRMSE = round(RMSE(pred = predsTs, obs = testData$y), digits = 2)  
     points(data$x, preds, type = "l",lwd = 2)
     title(paste("RMSE : Train = ",trRMSE, "| Test = ", tsRMSE))
@@ -157,9 +152,8 @@ regPredict = function(splittedData, p,ridge = TRUE, lambdaVal=0, afficherTest = 
 }
 
 
-#Pre-settings of Toy Data (will be manually set on GUI in the next push)
+#Pre-settings of Toy Data (will be manually set on GUI in the next version)
 
-myData = genPolyData(size = 300, xRange = c(-5,5), wNoiseSD = 2,  0,0.15, -1, 0.2, -1.6 )
+myData = genPolyData(size = 400, xRange = c(-5,5), wNoiseSD = 2,  0,0.15, -1, 0.2, -1.6, 5 )
 splittedData = trainTestSplit(data = myData, randomly = F)
-fitPredictLm(splittedData = splittedData, p = 4,afficherTest = T)
 

@@ -1,5 +1,5 @@
 
-################################# USER INTERFACE USING SHINY (V1.0) #####################################
+################################# USER INTERFACE USING SHINY (V2.0) #####################################
 
 library(shiny)
 
@@ -18,7 +18,10 @@ shinyUI(fluidPage(
       radioButtons("useRidge", "Regularization Method",
                    choices = c(Ridge = "T", Lasso = "F"), 
                    selected = "F", inline = F),
-      textInput("lambda", "Regularization coefficient :", value = 0)
+      sliderInput("lambda",
+                  "Regularization coefficient (Log Lambda) : ", min = -2, max = 10, value = 0.5,step = 0.5), 
+      actionButton("showReg","Plot Regularization results")
+      
     ),
       
     mainPanel(
